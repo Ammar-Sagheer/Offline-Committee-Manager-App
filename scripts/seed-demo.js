@@ -88,8 +88,8 @@ const MEMBERS = [
   // Two members have not paid yet and nobody has been given the committee, so
   // every "not done yet" state on the month screen has something in it.
   await contributions(all.slice(0, 8));
-  await q('select record_repayment($1, $2)', [byName('Abdul Rehman'), 8266.67]);
-  await q('select record_repayment($1, $2)', [byName('Muhammad Iqbal'), 8266.67]);
+  await q('select record_repayment($1, $2)', [byName('Abdul Rehman'), 8267]);
+  await q('select record_repayment($1, $2)', [byName('Muhammad Iqbal'), 8267]);
 
   // A mistake and its correction, so the reversal path has actually been
   // walked and both halves of a cancelled pair are on screen somewhere.

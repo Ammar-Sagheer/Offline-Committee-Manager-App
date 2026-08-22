@@ -10,19 +10,8 @@ import { money, amount, signedMoney } from "@/app/_lib/format-helpers";
  * `tone` pairs the colour with a word or an arrow at the call site -- colour is
  * never the only thing carrying the meaning.
  */
-export default function Money({
-  value,
-  bare = false,
-  signed = false,
-  paisa = false,
-  tone,
-  className = "",
-}) {
-  const text = bare
-    ? amount(value, { paisa })
-    : signed
-      ? signedMoney(value)
-      : money(value, { paisa });
+export default function Money({ value, bare = false, signed = false, tone, className = "" }) {
+  const text = bare ? amount(value) : signed ? signedMoney(value) : money(value);
 
   const toneClass =
     tone === "in" ? "text-in"

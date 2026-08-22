@@ -130,7 +130,7 @@ export default async function MonthPage() {
 
                   <td className="td-num">
                     {member.installment_due > 0 ? (
-                      <Money value={member.installment_due} bare paisa />
+                      <Money value={member.installment_due} bare />
                     ) : (
                       <span className="text-text-light">—</span>
                     )}

@@ -21,6 +21,18 @@ const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'committee-check-'));
 fs.chmodSync(dir, 0o755);
 process.env.APP_DATA_DIR = dir;
 
+// Its own ports, written before anything reads the config. Otherwise these
+// checks cannot run while `npm run db:dev` is up -- and the startup guard in
+// bootstrap-db.js refuses the collision rather than hanging on it, which is
+// correct behaviour and an unhelpful way to be stopped mid-test.
+fs.writeFileSync(path.join(dir, 'config.json'), JSON.stringify({
+  pgPort: 55611,
+  nextPort: 34611,
+  pgSuperPassword: 'check-super-password',
+  appUserPassword: 'check-app-password',
+  sessionSecret: '0'.repeat(64),
+}, null, 2), { mode: 0o600 });
+
 const { Client } = require('pg');
 const { bootstrapDatabase } = require('../electron/bootstrap-db');
 
@@ -98,7 +110,7 @@ const MEMBERS = [
   const sim = await q('select * from simulate_fund(30, 145000, 145000)');
   check('month 14 closes at Rs 415,000 if Rs 145,000 goes out', near(sim[0].closing, 415000),
     `got ${sim[0].closing}`);
-  check('month 15 takes in the first Rs 9,666.67 installment', near(sim[1].repayments, 9666.67, 0.02),
+  check('month 15 takes in the first Rs 9,667 installment', near(sim[1].repayments, 9667, 0.01),
     `got ${sim[1].repayments}`);
   const firstNegative = sim.find((r) => Number(r.closing) < 0);
   check('at Rs 145,000 a month the fund goes negative in month 20',
@@ -188,7 +200,7 @@ const MEMBERS = [
   check('Rs 124,000 to Abdul Rehman is accepted with no argument', Boolean(payout.id));
 
   const loan = await one("select * from loan_positions where member_id = $1 and status = 'active'", [rehman.id]);
-  check('his installment is Rs 8,266.67 a month', near(loan.installment, 8266.67, 0.01), `got ${loan.installment}`);
+  check('his installment is a whole Rs 8,267 a month', Number(loan.installment) === 8267, `got ${loan.installment}`);
   check('with 15 months to run', loan.months_remaining === 15, `got ${loan.months_remaining}`);
 
   for (const m of pos) await q('select record_contribution($1)', [m.id]);
@@ -219,9 +231,9 @@ const MEMBERS = [
 
   await q('select record_repayment($1, $2)', [rehman.id, 20000]);
   const after = await one("select * from loan_positions where member_id = $1 and status = 'active'", [rehman.id]);
-  check('paying Rs 20,000 instead of Rs 8,266.67 leaves Rs 104,000 owing',
+  check('paying Rs 20,000 instead of Rs 8,267 leaves Rs 104,000 owing',
     near(after.outstanding, 104000), `got ${after.outstanding}`);
-  check('...the installment does NOT change', near(after.installment, 8266.67, 0.01), `got ${after.installment}`);
+  check('...the installment does NOT change', Number(after.installment) === 8267, `got ${after.installment}`);
   check('...the committee just finishes 2 months earlier', after.months_remaining === 13,
     `got ${after.months_remaining}`);
 
@@ -233,8 +245,21 @@ const MEMBERS = [
 
   const step1 = (await q('select * from simulate_fund(6, 124000, 124000)'))[0];
   check('...because the installment still due this month is counted in this month',
-    near(step1.repayments, 8266.67 - 20000 > 0 ? 8266.67 - 20000 : 0, 0.02),
-    `step 1 repayments ${step1.repayments}`);
+    Number(step1.repayments) === 0, `step 1 repayments ${step1.repayments}`);
+
+  // Every figure in the books is a whole number of rupees, so nothing on
+  // screen is a rounding of something else.
+  const fractional = await q(`
+    select count(*)::int as n from ledger_entries where amount <> round(amount)
+     union all
+    select count(*)::int from loans where installment <> round(installment)`);
+  check('no ledger entry or installment carries paisa',
+    fractional.every((r) => r.n === 0), JSON.stringify(fractional));
+
+  const paisaRefused = await refuses(() => q(
+    "insert into ledger_entries (cycle_no, member_id, entry_type, amount) values (current_cycle_no(), $1, 'contribution', 4000.50)",
+    [arshad.id]));
+  check('...and the database refuses one that does', paisaRefused !== null);
 
   // ---- the ledger cannot be rewritten ----------------------------------
   console.log('');

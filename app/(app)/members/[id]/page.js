@@ -77,7 +77,7 @@ export default async function MemberPage({ params }) {
           tone={position.outstanding > 0 ? "out" : "in"}
           sub={
             position.outstanding > 0
-              ? `${money(position.installment_due, { paisa: true })} due each month`
+              ? `${money(position.installment_due)} due each month`
               : "nothing outstanding"
           }
         />
@@ -123,7 +123,7 @@ export default async function MemberPage({ params }) {
                     <td className="td-num"><Money value={loan.principal} bare /></td>
                     <td className="td-num"><Money value={loan.repaid} bare tone="in" /></td>
                     <td className="td-num"><Money value={loan.outstanding} bare tone="out" /></td>
-                    <td className="td-num"><Money value={loan.installment} bare paisa /></td>
+                    <td className="td-num"><Money value={loan.installment} bare /></td>
                     <td className="td-num">
                       {loan.months_remaining}
                       {loan.months_remaining < loan.term_months ? (

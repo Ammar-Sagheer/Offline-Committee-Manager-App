@@ -53,7 +53,7 @@ export default function RepaymentDialog({ member, cycleNo, disabled }) {
         open={open}
         onClose={() => setOpen(false)}
         title={`Repayment from ${member.full_name}`}
-        description={`He owes ${money(owed)} in total, and ${money(due, { paisa: true })} is due this month.`}
+        description={`He owes ${money(owed)} in total, and ${money(due)} is due this month.`}
       >
         <form action={formAction} className="space-y-4">
           <input type="hidden" name="member_id" value={member.id} />
@@ -94,7 +94,7 @@ export default function RepaymentDialog({ member, cycleNo, disabled }) {
               <span>
                 <span className="num font-semibold">{money(extra)}</span> more than this month&rsquo;s
                 installment. His monthly figure stays at{" "}
-                <span className="num">{money(due, { paisa: true })}</span> — the committee just
+                <span className="num">{money(due)}</span> — the committee just
                 finishes earlier, and the money is back in the account sooner.
               </span>
             </p>

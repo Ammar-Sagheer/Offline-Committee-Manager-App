@@ -52,7 +52,7 @@ export default async function StatementPage({ params }) {
             position.turns_taken ? `${position.turns_taken} turns` : "never taken a turn"],
           ["Still owes", money(position.outstanding),
             position.outstanding > 0
-              ? `${money(position.installment_due, { paisa: true })} a month`
+              ? `${money(position.installment_due)} a month`
               : "nothing"],
           ["His stake in the fund", money(position.equity), "put in, less what is owed"],
         ].map(([label, value, sub]) => (
@@ -85,7 +85,7 @@ export default async function StatementPage({ params }) {
                   <td className="td-num"><Money value={loan.principal} bare /></td>
                   <td className="td-num"><Money value={loan.repaid} bare /></td>
                   <td className="td-num"><Money value={loan.outstanding} bare /></td>
-                  <td className="td-num"><Money value={loan.installment} bare paisa /></td>
+                  <td className="td-num"><Money value={loan.installment} bare /></td>
                   <td className="td-num">{loan.months_remaining}</td>
                 </tr>
               ))}
