@@ -1,0 +1,36 @@
+{
+  "name": "committee-manager",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Offline desktop app for running a monthly committee (ROSCA) on one Windows laptop.",
+  "main": "electron/main.js",
+  "scripts": {
+    "db:dev": "node scripts/dev-db.js",
+    "dev": "next dev --hostname 127.0.0.1 --port 34117",
+    "build": "next build",
+    "postbuild": "node electron/copy-standalone-assets.js",
+    "start": "next start --hostname 127.0.0.1 --port 34117",
+    "electron": "electron .",
+    "electron:dev": "cross-env ELECTRON_DEV=true electron .",
+    "seed:demo": "node scripts/seed-demo.js",
+    "check:sql": "node scripts/check-sql.js",
+    "dist": "npm run build && cross-env CSC_IDENTITY_AUTO_DISCOVERY=false electron-builder"
+  },
+  "dependencies": {
+    "embedded-postgres": "^18.4.0-beta.17",
+    "iron-session": "^8.0.4",
+    "next": "^16.3.2",
+    "pg": "^8.16.3",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
+    "recharts": "^3.2.1"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4.3.3",
+    "cross-env": "^10.1.0",
+    "electron": "^43.4.1",
+    "electron-builder": "^26.0.12",
+    "postcss": "^8.5.6",
+    "tailwindcss": "^4.3.3"
+  }
+}

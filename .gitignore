@@ -1,0 +1,11 @@
+node_modules/
+.next/
+out/
+dist/
+.DS_Store
+*.log
+
+# Local development database cluster and generated secrets. Never committed:
+# the real ones live in the user's app-data folder on their own machine.
+.devdata/
+.env.local
