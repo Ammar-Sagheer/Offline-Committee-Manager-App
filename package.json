@@ -6,11 +6,14 @@
   "main": "electron/main.js",
   "scripts": {
     "db:dev": "node scripts/dev-db.js",
+    "db:reset": "node scripts/reset-db.js",
     "dev": "next dev --hostname 127.0.0.1 --port 34117",
     "build": "next build",
     "postbuild": "node electron/copy-standalone-assets.js",
     "start": "next start --hostname 127.0.0.1 --port 34117",
     "electron": "electron .",
+    "electron:build": "npm run build && electron .",
+    "pack": "npm run build && cross-env CSC_IDENTITY_AUTO_DISCOVERY=false electron-builder --dir",
     "electron:dev": "cross-env ELECTRON_DEV=true electron .",
     "seed:demo": "node scripts/seed-demo.js",
     "check:sql": "node scripts/check-sql.js",
@@ -40,7 +43,6 @@
     "productName": "Committee Manager",
     "copyright": "Committee Manager",
     "asar": false,
-    "includeSubNodeModules": true,
     "files": [
       "electron/**/*",
       "db/migrations/**/*",

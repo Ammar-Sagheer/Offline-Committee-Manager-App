@@ -97,14 +97,41 @@ npm run dev           # terminal 2 — http://127.0.0.1:34117
 
 Then `arshad` / `committee2026`, or `ammar` / `viewer2026` for read-only.
 
-Building the desktop app:
+## Building the desktop app
+
+Do it in this order. Each step is checkable on its own, and a later step's
+failures are much harder to read if an earlier one is still broken.
 
 ```bash
-npm run build         # next build + copies static assets into .next/standalone
-npm run dist          # electron-builder -> dist/
+npm run build            # next build, then copies static assets into .next/standalone
+npm run electron:build   # launches the app from source, but through the packaged code path
+npm run pack             # electron-builder --dir  ->  dist/win-unpacked/
+npm run dist             # wraps that in an installer ->  dist/Committee Manager Setup 0.1.0.exe
 ```
 
-`npm run dist` has never been run — see `PROGRESS.md`.
+**Build on Windows.** npm installs the Postgres binary for the machine it runs
+on, so a Windows installer built on Linux ships without one, and the `files`
+glob that names it matches nothing silently.
+
+**After `npm run pack`, check this before going further:**
+
+```
+dist\win-unpacked\resources\app\.next\standalone\node_modules\next
+```
+
+If `next` and `react` are not in there, the app will start and die with
+"Cannot find module 'next'". A build that succeeded is not evidence — this
+directory is exactly what electron-builder used to drop.
+
+Then run `dist\win-unpacked\Committee Manager.exe` directly, before making an
+installer. That separates "the app works" from "the installer works"; they fail
+for different reasons.
+
+`npm run dist` produces an unsigned installer, so Windows SmartScreen will warn
+on first run — "More info" then "Run anyway". Fixing that needs a code-signing
+certificate, not a build flag.
+
+See `PROGRESS.md` for exactly what has and has not been run.
 
 ## First run on a real machine
 

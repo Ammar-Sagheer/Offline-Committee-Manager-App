@@ -11,7 +11,39 @@ and reverted, or a bug whose cause was not where it looked.
 | Schema checks | 62, in `scripts/check-sql.js`, all passing |
 | Screens | dashboard, month, members, member, months, month detail, projection, settings, login, setup, two print sheets |
 | Verified by running | dev server in a browser at 1440/1024/400px; full Electron chain under a virtual display on Linux |
-| Never run | `electron-builder`, anything on Windows |
+| Packaged | `npm run pack` builds `dist/linux-unpacked` and that binary runs: own Postgres, 12 migrations, spawned server, `/setup` served with styling |
+| Never run | the NSIS installer (`npm run dist`), anything on Windows |
+
+## 2026-08-22 — the packaging config was invalid, and an empty database
+
+`electron-builder` was configured but never executed. Running it took one
+attempt to prove that was a mistake: **`includeSubNodeModules` is not a valid
+option in electron-builder 26** and the whole config is rejected before any
+work starts, so `npm run dist` would have failed on the first try on the
+client's machine.
+
+The option came from the `nextjs-to-electron` skill, where it guards a real
+failure: the old file walker treated any directory named `node_modules` as a
+unit and silently dropped `.next/standalone/node_modules`, giving "Cannot find
+module 'next'" from a build that succeeded. Version 26 rewrote the copier and
+removed the option. Verified rather than assumed — the packaged tree has
+`next`, `react`, `react-dom` and `styled-jsx` under
+`.next/standalone/node_modules/`, and `.next/static` beside them.
+
+Then the packaged binary itself was launched: bundled Postgres started, all 12
+migrations applied, the standalone server spawned from the packaged tree, and
+`/setup` rendered with its stylesheet. 128MB of app, 440MB with Electron.
+
+Two scripts added. `npm run pack` builds the unpacked app without an installer,
+which separates "the app works" from "the installer works" — they fail for
+different reasons and the unpacked one is far quicker to iterate on.
+`npm run db:reset` deletes `.devdata/` and `.env.local`, stopping Postgres
+first, because a cluster killed mid-write may not start again and Windows will
+not delete a folder with open handles in it.
+
+The development database was emptied. Nothing was needed in the repo for that —
+no migration has ever contained seed data, so a clone has nothing in it and the
+app goes `/` → `/login` → `/setup`. `npm run seed:demo` stays opt-in.
 
 ## 2026-08-22 — whole rupees (migration 012)
 

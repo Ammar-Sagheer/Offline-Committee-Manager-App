@@ -98,9 +98,13 @@ Import with `@/` everywhere. Never `../../..`.
 
 ## What has not been tested here
 
-The app has been run end to end under a virtual display on Linux: Postgres
-starts, all twelve migrations apply, the standalone server comes up, the window
-loads, shutdown is clean. **Nothing Windows-specific has been run at all** — no
-NSIS installer, no `.cmd` resolution, no certificate-store behaviour, no
-Windows file-locking. `electron-builder` has never been run. Treat the
-packaging section of `PROGRESS.md` as untested until somebody says otherwise.
+The app has been run end to end under a virtual display on Linux, both from
+source and from `electron-builder`'s packaged output: Postgres starts, all
+twelve migrations apply, the standalone server comes up, the window loads and
+renders, shutdown is clean.
+
+**Nothing Windows-specific has been run at all** — no NSIS installer, no `.cmd`
+resolution, no certificate-store behaviour, no Windows file-locking. And no
+installer of any kind has been produced; `npm run pack` (unpacked) has been
+run, `npm run dist` (NSIS) has not. See `PROGRESS.md` for what that leaves
+unproven.
