@@ -2,7 +2,7 @@
   "name": "committee-manager",
   "version": "0.1.0",
   "private": true,
-  "description": "Offline desktop app for running a monthly committee (ROSCA) on one Windows laptop.",
+  "description": "Offline desktop app for running a monthly committee (ROSCA) on one Windows laptop, with its own bundled Postgres.",
   "main": "electron/main.js",
   "scripts": {
     "db:dev": "node scripts/dev-db.js",
@@ -32,5 +32,74 @@
     "electron-builder": "^26.0.12",
     "postcss": "^8.5.6",
     "tailwindcss": "^4.3.3"
+  },
+  "author": "Ammar Sagheer",
+  "license": "UNLICENSED",
+  "build": {
+    "appId": "com.ammarsagheer.committeemanager",
+    "productName": "Committee Manager",
+    "copyright": "Committee Manager",
+    "asar": false,
+    "includeSubNodeModules": true,
+    "files": [
+      "electron/**/*",
+      "db/migrations/**/*",
+      "package.json",
+      "!node_modules/**/*",
+      "node_modules/@embedded-postgres/darwin-arm64/**/*",
+      "node_modules/@embedded-postgres/darwin-x64/**/*",
+      "node_modules/@embedded-postgres/linux-arm/**/*",
+      "node_modules/@embedded-postgres/linux-arm64/**/*",
+      "node_modules/@embedded-postgres/linux-ia32/**/*",
+      "node_modules/@embedded-postgres/linux-ppc64/**/*",
+      "node_modules/@embedded-postgres/linux-x64/**/*",
+      "node_modules/@embedded-postgres/windows-x64/**/*",
+      "node_modules/async-exit-hook/**/*",
+      "node_modules/embedded-postgres/**/*",
+      "node_modules/pg/**/*",
+      "node_modules/pg-cloudflare/**/*",
+      "node_modules/pg-connection-string/**/*",
+      "node_modules/pg-int8/**/*",
+      "node_modules/pg-pool/**/*",
+      "node_modules/pg-protocol/**/*",
+      "node_modules/pg-types/**/*",
+      "node_modules/pgpass/**/*",
+      "node_modules/postgres-array/**/*",
+      "node_modules/postgres-bytea/**/*",
+      "node_modules/postgres-date/**/*",
+      "node_modules/postgres-interval/**/*",
+      "node_modules/split2/**/*",
+      "node_modules/xtend/**/*",
+      ".next/standalone/**/*"
+    ],
+    "directories": {
+      "output": "dist",
+      "buildResources": "build"
+    },
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "signAndEditExecutable": false
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "Committee Manager"
+    },
+    "linux": {
+      "target": [
+        "AppImage"
+      ],
+      "category": "Office"
+    }
   }
 }

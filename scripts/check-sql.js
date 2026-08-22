@@ -111,6 +111,32 @@ const MEMBERS = [
   check('at Rs 124,000 the fund never drops below its Rs 50,000 cushion',
     Number(safeSim[0].lowest) >= 50000, `lowest ${safeSim[0].lowest}`);
 
+  // ---- the levers ------------------------------------------------------
+  const levers = await one('select * from payout_levers()');
+  check('the agreed Rs 145,000 is reported as unaffordable', levers.is_affordable === false);
+  check('...short by Rs 21,000 a month', near(levers.shortfall, 21000), `got ${levers.shortfall}`);
+  // The term lever is checked on its BOUNDARY rather than against a number
+  // copied out of this file, because the boundary is what the answer means:
+  // 10 months holds the cushion (trough Rs 86,000), 11 misses it by Rs 909
+  // (trough Rs 49,091 against a Rs 50,000 floor). Asserting both sides proves
+  // the search found the real edge and not merely a safe-looking value.
+  check('...and repaying over 10 months would fix it on its own', levers.needed_term === 10,
+    `got ${levers.needed_term}`);
+  check('...10 months really does hold the cushion',
+    (await one('select terms_are_safe(145000, null, 10) as v')).v === true);
+  check('...11 months really does not -- the search found the true edge',
+    (await one('select terms_are_safe(145000, null, 11) as v')).v === false);
+
+  check('...or raising everyone to Rs 5,450 a month', near(levers.needed_contribution, 5450),
+    `got ${levers.needed_contribution}`);
+  check('...which really does hold the cushion',
+    (await one('select terms_are_safe(145000, 5450, null) as v')).v === true);
+  check('...and Rs 50 less really does not',
+    (await one('select terms_are_safe(145000, 5400, null) as v')).v === false);
+
+  check('the fund grows Rs 40,000 a month once past the ramp',
+    near(levers.growth_after_ramp, 40000), `got ${levers.growth_after_ramp}`);
+
   // ---- the refusals ----------------------------------------------------
   console.log('');
   const arshad = pos.find((p) => p.full_name === 'Muhammad Arshad');
@@ -198,6 +224,17 @@ const MEMBERS = [
   check('...the installment does NOT change', near(after.installment, 8266.67, 0.01), `got ${after.installment}`);
   check('...the committee just finishes 2 months earlier', after.months_remaining === 13,
     `got ${after.months_remaining}`);
+
+  // ---- the projection must not lose a month of repayments --------------
+  console.log('');
+  const safeIn15 = Number((await one('select max_safe_payout() as v')).v);
+  check('having taken Rs 124,000 in month 14 does not make month 15 unaffordable',
+    safeIn15 >= 124000, `month 15 allows only ${safeIn15}`);
+
+  const step1 = (await q('select * from simulate_fund(6, 124000, 124000)'))[0];
+  check('...because the installment still due this month is counted in this month',
+    near(step1.repayments, 8266.67 - 20000 > 0 ? 8266.67 - 20000 : 0, 0.02),
+    `step 1 repayments ${step1.repayments}`);
 
   // ---- the ledger cannot be rewritten ----------------------------------
   console.log('');

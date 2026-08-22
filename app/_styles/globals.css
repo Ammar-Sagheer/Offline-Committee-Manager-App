@@ -1,0 +1,217 @@
+@import "tailwindcss";
+
+/* -------------------------------------------------------------------------
+ * Tokens
+ *
+ * Named by role, never by hue, so setting this up for a different committee is
+ * a token swap and nothing in the markup ends up saying "green" when the new
+ * one wants blue.
+ *
+ * The reader is one man, every month, on a laptop, checking figures against a
+ * bank slip and a notebook. So: larger type than a website would use, fewer
+ * rows, nothing hidden behind a hover, and colour never carrying meaning on
+ * its own -- there is always a word, an arrow or an icon beside it.
+ * ---------------------------------------------------------------------- */
+
+@theme {
+  --color-primary: #0d5c63;
+  --color-primary-hover: #0a464c;
+  --color-primary-soft: #e6f2f2;
+
+  --color-surface: #ffffff;
+  --color-surface-alt: #f6f7f5;
+  --color-surface-sunk: #eef0ec;
+  --color-border: #dcdfd8;
+  --color-border-strong: #b9bfb2;
+
+  --color-text: #23261f;
+  --color-text-light: #5d6357;
+  --color-heading: #14180f;
+
+  /* Money has exactly two directions and they never share a colour.
+     in = arriving in the committee account, out = leaving it. */
+  --color-in: #15803d;
+  --color-in-soft: #e7f5ec;
+  --color-out: #b45309;
+  --color-out-soft: #fdf1e3;
+
+  --color-danger: #b91c1c;
+  --color-danger-soft: #fdeaea;
+  --color-warning: #a16207;
+  --color-warning-soft: #fdf6e3;
+  --color-ok: #15803d;
+
+  --font-sans: ui-sans-serif, system-ui, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+@layer base {
+  html {
+    /* One notch up from a website's default. This is read at arm's length on a
+       laptop by someone who is also looking at a piece of paper. */
+    font-size: 17px;
+  }
+
+  body {
+    @apply bg-surface-alt text-text antialiased;
+    font-family: var(--font-sans);
+  }
+
+  h1, h2, h3 {
+    @apply text-heading font-semibold tracking-tight;
+  }
+
+  /* Every focusable thing shows where the keyboard is. */
+  :focus-visible {
+    @apply outline-2 outline-offset-2 outline-primary;
+  }
+}
+
+@layer components {
+  /* Tailwind v4's @apply can only reference real utilities, never another
+     custom class -- so .btn-primary cannot @apply .btn. Each is written out in
+     full. Slightly repetitive, and it means each class always works alone. */
+
+  .card {
+    @apply rounded-2xl border border-border bg-surface;
+    box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.04), 0 8px 24px -12px rgb(0 0 0 / 0.10);
+  }
+
+  .card-flat {
+    @apply rounded-2xl border border-border bg-surface;
+  }
+
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-xl border border-border
+           bg-surface px-4 py-2.5 text-base font-medium text-text
+           hover:bg-surface-alt disabled:cursor-not-allowed disabled:opacity-50;
+  }
+
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-xl border border-transparent
+           bg-primary px-4 py-2.5 text-base font-semibold text-white
+           hover:bg-primary-hover disabled:cursor-not-allowed disabled:opacity-50;
+  }
+
+  .btn-danger {
+    @apply inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-xl border border-transparent
+           bg-danger px-4 py-2.5 text-base font-semibold text-white
+           hover:brightness-95 disabled:cursor-not-allowed disabled:opacity-50;
+  }
+
+  .btn-quiet {
+    @apply inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-lg px-3 py-2
+           text-base font-medium text-primary hover:bg-primary-soft
+           disabled:cursor-not-allowed disabled:opacity-50;
+  }
+
+  .input {
+    @apply w-full rounded-xl border border-border bg-surface px-3.5 py-2.5 text-base text-text
+           focus:border-primary focus:outline-none disabled:bg-surface-sunk;
+  }
+
+  .label {
+    @apply mb-1.5 block text-sm font-semibold text-text-light;
+  }
+
+  .hint {
+    @apply mt-1.5 text-sm text-text-light;
+  }
+
+  /* A figure never wraps. "Rs 2,500,000" broken after the "Rs" reads for a
+     moment as two figures, and this is an app where the whole job is reading
+     figures correctly. */
+  .num {
+    @apply whitespace-nowrap;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .td-num {
+    @apply whitespace-nowrap px-3 py-3 text-right text-base font-medium;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .th {
+    @apply whitespace-nowrap px-3 py-2.5 text-left text-sm font-semibold text-text-light;
+  }
+
+  .th-num {
+    @apply whitespace-nowrap px-3 py-2.5 text-right text-sm font-semibold text-text-light;
+  }
+
+  .td {
+    @apply px-3 py-3 text-base;
+  }
+
+  .table-wrap {
+    /* Wide tables scroll inside their own box. The page body never scrolls
+       sideways -- that is how a column ends up hidden under a pinned one.
+       
+       `relative` is load-bearing, not decoration. An absolutely positioned
+       descendant is clipped by an overflow ancestor only when its CONTAINING
+       BLOCK is inside that ancestor -- and with nothing positioned in between,
+       the containing block is the viewport instead. Tailwind's `sr-only` is
+       absolutely positioned, so a screen-reader note in a far-right column of
+       a 992px table sat at x=728 with the viewport 400px wide, and dragged the
+       whole document sideways by 329px. Every visible thing was clipped
+       correctly; the one invisible thing was not. */
+    @apply relative w-full overflow-x-auto;
+  }
+
+  .chip {
+    @apply inline-flex items-center gap-1.5 whitespace-nowrap rounded-full px-2.5 py-1
+           text-sm font-semibold;
+  }
+
+  .chip-in    { @apply bg-in-soft text-in; }
+  .chip-out   { @apply bg-out-soft text-out; }
+  .chip-warn  { @apply bg-warning-soft text-warning; }
+  .chip-bad   { @apply bg-danger-soft text-danger; }
+  .chip-quiet { @apply bg-surface-sunk text-text-light; }
+
+  .stat-label {
+    @apply text-sm font-semibold uppercase tracking-wide text-text-light;
+  }
+
+  /* The data is bigger than the chrome. A figure someone verifies must never be
+     smaller than the label describing it -- getting that backwards is the most
+     common readability failure there is. */
+  /* Held on one line, always. "Rs 420,533.34" broken after the "Rs" reads
+     for a moment as two figures -- so the FIGURE stays whole and the layout
+     gives way instead (the stat grid drops to two columns on a narrower
+     container rather than letting the number fold). */
+  .stat-value {
+    @apply mt-1 whitespace-nowrap text-2xl font-semibold text-heading;
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+/* -------------------------------------------------------------------------
+ * Print
+ *
+ * Nine of the ten members will never open this app. What they see is a sheet
+ * Arshad prints or saves as a PDF, so the printed page is a real screen, not an
+ * afterthought.
+ * ---------------------------------------------------------------------- */
+@media print {
+  @page { margin: 14mm; }
+
+  html { font-size: 12px; }
+
+  body {
+    background: #fff;
+    color: #000;
+  }
+
+  .no-print { display: none !important; }
+
+  .card, .card-flat {
+    border: 1px solid #999;
+    box-shadow: none;
+    border-radius: 0;
+    break-inside: avoid;
+  }
+
+  table { break-inside: auto; }
+  tr    { break-inside: avoid; break-after: auto; }
+  thead { display: table-header-group; }
+}

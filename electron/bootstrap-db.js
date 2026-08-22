@@ -12,6 +12,7 @@
  * the laptop needs no Docker, no installer and no service.
  */
 const fs = require('fs');
+const net = require('net');
 const path = require('path');
 const { Client } = require('pg');
 const { dbDataDir, userDataDir, loadOrCreateConfig } = require('./config');
@@ -63,6 +64,38 @@ async function runMigrations(client, log = console.log) {
   return applied;
 }
 
+/**
+ * Is this port free?
+ *
+ * Worth checking before starting rather than after: embedded-postgres waits for
+ * a "ready to accept connections" line that a Postgres which could not bind
+ * never prints, so the app hangs for ever -- no window, no error, nothing on
+ * screen at all. That is the worst failure this app can have, because there is
+ * nothing for the person in front of it to report.
+ *
+ * The usual cause is dull and fixable: a second copy of the app already open,
+ * or the last one still shutting down.
+ */
+function portIsFree(port) {
+  return new Promise((resolve) => {
+    const server = net.createServer();
+    server.once('error', () => resolve(false));
+    server.once('listening', () => server.close(() => resolve(true)));
+    server.listen(port, '127.0.0.1');
+  });
+}
+
+/** Fail with something readable rather than waiting for ever. */
+function withTimeout(promise, ms, message) {
+  return new Promise((resolve, reject) => {
+    const timer = setTimeout(() => reject(new Error(message)), ms);
+    promise.then(
+      (value) => { clearTimeout(timer); resolve(value); },
+      (error) => { clearTimeout(timer); reject(error); },
+    );
+  });
+}
+
 async function bootstrapDatabase({ log = console.log } = {}) {
   // embedded-postgres is ESM-only and this file is CommonJS, which is what the
   // Electron main process is. A dynamic import() works from CommonJS whatever
@@ -87,9 +120,21 @@ async function bootstrapDatabase({ log = console.log } = {}) {
     // laptop this ships to never takes this branch.
     createPostgresUser: typeof process.getuid === 'function' && process.getuid() === 0,
 
-    onLog: () => {},
-    onError: () => {},
+    // Forwarded to the same log file as everything else. A database that will
+    // not start is the one failure with nothing else to go on: the window never
+    // appears, and on a packaged GUI app there is no console for it to have
+    // printed to.
+    onLog: (message) => log(`[pg] ${String(message).trim()}`),
+    onError: (message) => log(`[pg error] ${String(message).trim()}`),
   });
+
+  if (!(await portIsFree(config.pgPort))) {
+    throw new Error(
+      `Something on this computer is already using port ${config.pgPort}, which Committee Manager needs for its database. ` +
+      'This almost always means the app is already open, or the last copy has not finished closing. ' +
+      'Close it, wait a few seconds, and start it again.',
+    );
+  }
 
   if (firstRun) {
     log(`[db] first run - creating the database in ${dataDir}`);
@@ -100,7 +145,12 @@ async function bootstrapDatabase({ log = console.log } = {}) {
     fs.mkdirSync(dataDir, { recursive: true });
     await pg.initialise();
   }
-  await pg.start();
+  // Bounded, for the same reason as the port check above: waiting for ever is
+  // the one outcome nobody can act on.
+  await withTimeout(
+    pg.start(), 90_000,
+    'The database did not start within 90 seconds. There is a log in the app\'s data folder (File → Show the data folder) with the reason.',
+  );
   if (firstRun) await pg.createDatabase(DATABASE_NAME);
 
   const client = new Client({
