@@ -61,3 +61,16 @@ export function addMonths(isoDate, count) {
   const m = (zero % 12) + 1;
   return `${y}-${String(m).padStart(2, "0")}-01`;
 }
+
+// A `timestamptz` is the one column type db.js deliberately lets stay a real
+// Date -- it is an instant, not a calendar day, so there is no midnight to
+// lose. '2026-08-23 20:24' -> '23 Aug 2026, 8:24 pm'
+const dateTimeFormatter = new Intl.DateTimeFormat("en-PK", {
+  day: "numeric", month: "short", year: "numeric",
+  hour: "numeric", minute: "2-digit", hour12: true,
+});
+
+export function dateTime(value) {
+  if (!value) return "—";
+  return dateTimeFormatter.format(new Date(value)).replace(/\bAM\b/, "am").replace(/\bPM\b/, "pm");
+}

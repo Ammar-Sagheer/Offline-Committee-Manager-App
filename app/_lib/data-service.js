@@ -120,6 +120,37 @@ export async function getCycleEntries(cycleNo) {
   );
 }
 
+/* -------------------------------------------------------------- activity -- */
+
+/**
+ * Every ledger entry ever written, newest first. Written by the database
+ * itself (created_at, created_by) rather than by anything the app could get
+ * wrong, which is the point of showing it at all.
+ */
+export async function getActivity({ userId = null, limit = 300 } = {}) {
+  return query(
+    `select e.*, m.full_name, c.period_month, u.full_name as created_by_name
+       from ledger_entries e
+       join members m on m.id = e.member_id
+       join cycles  c on c.cycle_no = e.cycle_no
+       left join users u on u.id = e.created_by
+      where $1::uuid is null or e.created_by = $1
+      order by e.created_at desc
+      limit $2`,
+    [userId, limit],
+  );
+}
+
+/** Only the users who have actually written something -- not every login. */
+export async function getActivityActors() {
+  return query(
+    `select distinct u.id, u.full_name
+       from ledger_entries e
+       join users u on u.id = e.created_by
+      order by u.full_name`,
+  );
+}
+
 /* ----------------------------------------------------------- projection -- */
 
 /**

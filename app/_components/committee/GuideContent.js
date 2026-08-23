@@ -30,6 +30,35 @@ const SECTIONS = [
     },
   },
   {
+    icon: "clock",
+    en: {
+      title: "The flow, every month",
+      body: [
+        "The same handful of steps, every month, mostly on the \"This month\" screen:",
+        "1. Sign in as manager.",
+        "2. Open \"This month\". As each person hands over his Rs 4,000, press his contribution button.",
+        "3. As anyone still repaying an earlier withdrawal hands over his installment, press \"Record repayment\" against his name and type what he gave you.",
+        "4. When it is time to hand the committee over, open the withdrawal card, check who is next in the queue, and give it to him. The app refuses on its own if the account cannot afford it.",
+        "5. Once everyone has paid, press \"Close this month\" to move on. If something was missed, reopen it, fix it, and close it again.",
+        "6. Print the month's summary, or save it as a PDF, and pass it to the other nine — that sheet is the only thing most of them will ever see.",
+        "Nothing here has to happen in one sitting. A contribution or repayment can be recorded any day of the month, as it actually arrives.",
+      ],
+    },
+    ur: {
+      title: "ہر مہینے کا طریقہ کار",
+      body: [
+        "ہر مہینے یہی چند مراحل دہرائے جاتے ہیں، زیادہ تر \"اس مہینے کا کام\" سکرین پر:",
+        "1۔ منیجر کے طور پر سائن ان کریں۔",
+        "2۔ \"اس مہینے کا کام\" کھولیں۔ جیسے ہی کوئی فرد اپنے 4,000 روپے دے، اس کے چندے کا بٹن دبائیں۔",
+        "3۔ جو رکن پہلے کی نکلوائی گئی رقم واپس کر رہا ہے، جیسے ہی وہ اپنی قسط دے، اس کے نام کے سامنے \"قسط ریکارڈ کریں\" دبائیں اور جو رقم اس نے دی وہ لکھیں۔",
+        "4۔ جب کمیٹی دینے کا وقت آئے تو نکلوانے والا کارڈ کھولیں، دیکھیں کہ باری کس کی ہے، اور اسے رقم دے دیں۔ اگر کھاتہ یہ برداشت نہ کر سکے تو ایپ خود ہی منع کر دے گی۔",
+        "5۔ جب سب نے ادائیگی کر دی ہو تو آگے بڑھنے کے لیے \"اس مہینے کو بند کریں\" دبائیں۔ اگر کچھ رہ گیا ہو تو اسے دوبارہ کھولیں، درست کریں، اور دوبارہ بند کر دیں۔",
+        "6۔ مہینے کا خلاصہ پرنٹ کریں، یا پی ڈی ایف کے طور پر محفوظ کریں، اور باقی نو ارکان کو دے دیں — زیادہ تر ارکان صرف یہی شیٹ دیکھتے ہیں۔",
+        "یہ سب کچھ ایک ہی وقت میں کرنا ضروری نہیں۔ چندہ یا قسط مہینے کے کسی بھی دن ریکارڈ کی جا سکتی ہے، جیسے ہی وہ اصل میں موصول ہو۔",
+      ],
+    },
+  },
+  {
     icon: "lock",
     en: {
       title: "Signing in",

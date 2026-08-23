@@ -137,9 +137,11 @@ export default async function DashboardPage() {
                       {row.full_name}
                     </Link>
                     {row.turns_taken === 0 ? (
-                      <span className="chip chip-in ml-2">
-                        <Icon name="trophy" className="size-4" />
-                        never taken it
+                      <span className="mt-1 flex">
+                        <span className="chip chip-in">
+                          <Icon name="trophy" className="size-4" />
+                          never taken it
+                        </span>
                       </span>
                     ) : null}
                   </td>

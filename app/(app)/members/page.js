@@ -4,6 +4,7 @@ import { getSessionUser } from "@/app/_lib/helpers";
 import { money } from "@/app/_lib/format-helpers";
 import PageHeader from "@/app/_components/ui/PageHeader";
 import Icon from "@/app/_components/ui/Icon";
+import Avatar from "@/app/_components/ui/Avatar";
 import Money from "@/app/_components/ui/Money";
 import EmptyState from "@/app/_components/ui/EmptyState";
 import AddMemberButton from "@/app/_components/committee/AddMemberButton";
@@ -50,24 +51,29 @@ export default async function MembersPage() {
               {active.map((member) => (
                 <tr key={member.id} className="border-b border-border last:border-0">
                   <td className="td">
-                    <Link href={`/members/${member.id}`} className="font-medium text-primary hover:underline">
-                      {member.full_name}
-                    </Link>
-                    <span className="mt-1 flex flex-wrap gap-1.5">
-                      {member.turns_taken === 0 ? (
-                        <span className="chip chip-quiet">never taken it</span>
-                      ) : (
-                        <span className="chip chip-quiet">
-                          {member.turns_taken} {member.turns_taken === 1 ? "turn" : "turns"}
+                    <div className="flex items-start gap-3">
+                      <Avatar name={member.full_name} className="mt-0.5 size-9" />
+                      <div>
+                        <Link href={`/members/${member.id}`} className="font-medium text-primary hover:underline">
+                          {member.full_name}
+                        </Link>
+                        <span className="mt-1 flex flex-wrap gap-1.5">
+                          {member.turns_taken === 0 ? (
+                            <span className="chip chip-quiet">never taken it</span>
+                          ) : (
+                            <span className="chip chip-quiet">
+                              {member.turns_taken} {member.turns_taken === 1 ? "turn" : "turns"}
+                            </span>
+                          )}
+                          {!member.paid_this_cycle ? (
+                            <span className="chip chip-warn">
+                              <Icon name="clock" className="size-4" />
+                              owes this month
+                            </span>
+                          ) : null}
                         </span>
-                      )}
-                      {!member.paid_this_cycle ? (
-                        <span className="chip chip-warn">
-                          <Icon name="clock" className="size-4" />
-                          owes this month
-                        </span>
-                      ) : null}
-                    </span>
+                      </div>
+                    </div>
                   </td>
                   <td className="td-num text-text-light">{member.months_paid}</td>
                   <td className="td-num">
@@ -148,9 +154,12 @@ export default async function MembersPage() {
           <ul className="divide-y divide-border">
             {past.map((member) => (
               <li key={member.id} className="flex items-center justify-between px-6 py-3">
-                <Link href={`/members/${member.id}`} className="text-primary hover:underline">
-                  {member.full_name}
-                </Link>
+                <div className="flex items-center gap-3">
+                  <Avatar name={member.full_name} className="size-8" />
+                  <Link href={`/members/${member.id}`} className="text-primary hover:underline">
+                    {member.full_name}
+                  </Link>
+                </div>
                 <Money value={member.contributed} className="text-text-light" />
               </li>
             ))}

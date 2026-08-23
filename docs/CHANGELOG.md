@@ -9,10 +9,36 @@ and reverted, or a bug whose cause was not where it looked.
 |---|---|
 | Migrations | 001–015, all applied by `electron/bootstrap-db.js` on launch |
 | Schema checks | 71, in `scripts/check-sql.js`, all passing |
-| Screens | dashboard, month, members, member, months, month detail, projection, settings, guide, login, setup, two print sheets |
+| Screens | dashboard, month, members, member, months, month detail, activity, projection, settings, guide, login, setup, two print sheets |
 | Verified by running | dev server in a browser at 1440/1024/400px; full Electron chain under a virtual display on Linux |
 | Packaged | `npm run pack` builds `dist/linux-unpacked` and that binary runs: own Postgres, 12 migrations, spawned server, `/setup` served with styling |
 | Never run | the NSIS installer (`npm run dist`), anything on Windows |
+
+## 2026-08-23 — an activity screen, and small fit-and-finish
+
+`/activity` lists every ledger entry ever written, newest first, filterable by
+who entered it -- `created_by` and `created_at` on ledger_entries were already
+there, written by the database on every insert, so this is a screen on data
+that already existed rather than a new column. `EntryKind` (the chip that
+turns an entry_type into a word and an icon) moved out of the month screen
+into its own component so this screen and that one render entries the same
+way instead of two copies drifting apart.
+
+The "never taken it" chip on the dashboard's payout queue sat right after the
+member's name, so it started at a different position in every row depending
+on how long the name was. It now sits on its own line, the same way the
+Members screen already does it, so the chips line up regardless of name
+length.
+
+The sidebar's dashed separator under the app name became a solid line, member
+rows on the Members screen got a small coloured initials circle (colour
+picked from the name itself, nothing stored), and the app icon was swapped
+for a second time after a different image was supplied.
+
+Also root-caused, not fixed in code: the print button doing nothing traced to
+the Windows Print Spooler service being stopped on this machine -- Electron's
+window.print() depends on it even for "Print to PDF", and fails silently with
+no console output when it is not running. Nothing in the app was wrong.
 
 ## 2026-08-23 — a guide screen, and a real icon (v0.2.0)
 

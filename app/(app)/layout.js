@@ -26,7 +26,7 @@ export default async function AppLayout({ children }) {
     <div className="min-h-screen lg:grid lg:grid-cols-[16rem_1fr]">
       <aside className="border-b border-border bg-surface lg:sticky lg:top-0 lg:h-screen lg:border-b-0 lg:border-r">
         <div className="flex h-full flex-col gap-6 p-4">
-          <div className="px-2 pt-2">
+          <div className="border-b border-border-strong px-2 pt-2 pb-4">
             <p className="text-lg font-semibold text-heading">{siteConfig.name}</p>
             <p className="mt-0.5 text-sm text-text-light">{siteConfig.committeeName}</p>
           </div>
@@ -36,6 +36,7 @@ export default async function AppLayout({ children }) {
             <NavLink href="/month" icon="month">This month</NavLink>
             <NavLink href="/members" icon="members">Members</NavLink>
             <NavLink href="/months" icon="history">Past months</NavLink>
+            <NavLink href="/activity" icon="activity">Activity</NavLink>
             <NavLink href="/projection" icon="projection">Projection</NavLink>
             <NavLink href="/settings" icon="settings">Settings</NavLink>
             <NavLink href="/help" icon="help">Guide</NavLink>
