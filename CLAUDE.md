@@ -56,7 +56,7 @@ broken through 62 passing checks (migration 014).
 ## How to verify a change
 
 ```bash
-npm run check:sql     # 67 checks against a throwaway Postgres cluster
+npm run check:sql     # 71 checks against a throwaway Postgres cluster
 npm run build         # the only type check a JavaScript project has
 ```
 
@@ -105,7 +105,7 @@ Import with `@/` everywhere. Never `../../..`.
 
 The app has been run end to end under a virtual display on Linux, both from
 source and from `electron-builder`'s packaged output: Postgres starts, all
-fourteen migrations apply, the standalone server comes up, the window loads and
+fifteen migrations apply, the standalone server comes up, the window loads and
 renders, shutdown is clean.
 
 **Nothing Windows-specific has been run at all** — no NSIS installer, no `.cmd`

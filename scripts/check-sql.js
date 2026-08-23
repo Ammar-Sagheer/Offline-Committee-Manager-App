@@ -225,6 +225,21 @@ const MEMBERS = [
   check('Rs 124,000 to Abdul Rehman is accepted with no argument', Boolean(payout.id));
 
   const loan = await one("select * from loan_positions where member_id = $1 and status = 'active'", [rehman.id]);
+
+  // The month you take the committee, you owe your contribution and nothing
+  // else. The first installment falls due the month after.
+  const takerNow = await one('select * from member_positions() where id = $1', [rehman.id]);
+  check('the month he takes it, no installment is due yet',
+    Number(takerNow.installment_due) === 0, `got ${takerNow.installment_due}`);
+  check('...so all he owes this month is his contribution',
+    Number(takerNow.due_this_month) === 4000, `got ${takerNow.due_this_month}`);
+  check('...and the withdrawal still shows as his', takerNow.active_loans === 1);
+
+  // The projection must agree, or a payout could be approved partly on the
+  // strength of its own repayment in the month the money leaves.
+  const sameMonth = (await q('select * from simulate_fund(3, 0, 0)'))[0];
+  check('the projection counts no repayment from it this month either',
+    Number(sameMonth.repayments) === 0, `got ${sameMonth.repayments}`);
   check('his installment is a whole Rs 8,267 a month', Number(loan.installment) === 8267, `got ${loan.installment}`);
   check('with 15 months to run', loan.months_remaining === 15, `got ${loan.months_remaining}`);
 

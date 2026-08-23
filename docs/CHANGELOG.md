@@ -7,12 +7,33 @@ and reverted, or a bug whose cause was not where it looked.
 
 | | |
 |---|---|
-| Migrations | 001–014, all applied by `electron/bootstrap-db.js` on launch |
-| Schema checks | 67, in `scripts/check-sql.js`, all passing |
+| Migrations | 001–015, all applied by `electron/bootstrap-db.js` on launch |
+| Schema checks | 71, in `scripts/check-sql.js`, all passing |
 | Screens | dashboard, month, members, member, months, month detail, projection, settings, login, setup, two print sheets |
 | Verified by running | dev server in a browser at 1440/1024/400px; full Electron chain under a virtual display on Linux |
 | Packaged | `npm run pack` builds `dist/linux-unpacked` and that binary runs: own Postgres, 12 migrations, spawned server, `/setup` served with styling |
 | Never run | the NSIS installer (`npm run dist`), anything on Windows |
+
+## 2026-08-23 — the month you take the committee, you owe nothing back yet (migration 015)
+
+Arshed was handed the committee in month 15 and the same screen showed him
+Rs 15,000 already due. He owes his ordinary contribution that month and nothing
+else; the first installment falls due the month after.
+
+Wrong in two places, and they had to be fixed together. `member_positions()`
+summed the installment of every active withdrawal whatever month it was made
+in. `simulate_fund()` did the same in step 1 — which is the worse of the two,
+because it counted an inflow this month from a withdrawal made this month, so a
+payout could be approved partly on the strength of its own repayment in the very
+month the money leaves the account.
+
+The withdrawal the projection hands out at each later step was always scheduled
+from the following step. This makes the ones already on the books behave the
+same way, which is what they should have done from the start.
+
+The count of active withdrawals still includes this month's — he does have it,
+he just has not started repaying it. And nothing stops a member paying early:
+this is about what falls due, not what is allowed.
 
 ## 2026-08-23 — three things found by running the installed app
 
