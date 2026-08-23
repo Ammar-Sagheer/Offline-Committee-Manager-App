@@ -9,10 +9,24 @@ and reverted, or a bug whose cause was not where it looked.
 |---|---|
 | Migrations | 001–015, all applied by `electron/bootstrap-db.js` on launch |
 | Schema checks | 71, in `scripts/check-sql.js`, all passing |
-| Screens | dashboard, month, members, member, months, month detail, projection, settings, login, setup, two print sheets |
+| Screens | dashboard, month, members, member, months, month detail, projection, settings, guide, login, setup, two print sheets |
 | Verified by running | dev server in a browser at 1440/1024/400px; full Electron chain under a virtual display on Linux |
 | Packaged | `npm run pack` builds `dist/linux-unpacked` and that binary runs: own Postgres, 12 migrations, spawned server, `/setup` served with styling |
 | Never run | the NSIS installer (`npm run dist`), anything on Windows |
+
+## 2026-08-23 — a guide screen, and a real icon (v0.2.0)
+
+Nine of the ten members never open this app, but the one who does had nowhere
+to be reminded what a button does between one month and the next. `/help`
+walks the screens in the order they sit in the sidebar, in English and in
+Urdu side by side as a language toggle — a viewer who only reads Urdu can now
+run the whole month from that page alone.
+
+And the packaged app carried Electron's own default icon, because nothing in
+`build/` or `electron/` ever supplied a different one. `build/icon.ico` is
+what `electron-builder` embeds into the Windows executable; `electron/icon.ico`
+is the same image bundled into the app's own files so the title bar and
+taskbar show it too when running unpacked from source, not only once installed.
 
 ## 2026-08-23 — the month you take the committee, you owe nothing back yet (migration 015)
 

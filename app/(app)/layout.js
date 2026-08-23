@@ -38,6 +38,7 @@ export default async function AppLayout({ children }) {
             <NavLink href="/months" icon="history">Past months</NavLink>
             <NavLink href="/projection" icon="projection">Projection</NavLink>
             <NavLink href="/settings" icon="settings">Settings</NavLink>
+            <NavLink href="/help" icon="help">Guide</NavLink>
           </nav>
 
           <div className="mt-auto border-t border-border pt-4">

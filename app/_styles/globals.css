@@ -186,6 +186,13 @@
     @apply mt-1 whitespace-nowrap text-2xl font-semibold text-heading;
     font-variant-numeric: tabular-nums;
   }
+
+  /* Nastaliq stacks diagonally, so it needs far more line-height than the
+     Latin type this app is otherwise sized for -- 1.5 clips descenders. */
+  .text-urdu {
+    font-family: "Urdu Typesetting", "Jameel Noori Nastaleeq", "Noto Nastaliq Urdu", var(--font-sans);
+    line-height: 2.2;
+  }
 }
 
 /* -------------------------------------------------------------------------

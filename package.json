@@ -1,6 +1,6 @@
 {
   "name": "committee-manager",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "description": "Offline desktop app for running a monthly committee (ROSCA) on one Windows laptop, with its own bundled Postgres.",
   "main": "electron/main.js",

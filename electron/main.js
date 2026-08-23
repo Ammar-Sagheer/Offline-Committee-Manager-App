@@ -154,6 +154,12 @@ function startNextServer(env) {
   return `http://127.0.0.1:${port}`;
 }
 
+// Windows takes its taskbar and title-bar icon from the .exe resource that
+// electron-builder embeds from build/icon.ico, so this only matters running
+// unpacked from source -- otherwise the window would show plain Electron's
+// icon while every other surface (installer, shortcut, About box) shows ours.
+const windowIcon = path.join(__dirname, process.platform === 'win32' ? 'icon.ico' : 'icon.png');
+
 async function createWindow(env) {
   const url = startNextServer(env);
   log(`waiting for ${url}`);
@@ -168,6 +174,7 @@ async function createWindow(env) {
     show: false,
     title: 'Committee Manager',
     backgroundColor: '#f6f7f5',
+    icon: windowIcon,
     webPreferences: {
       contextIsolation: true,
       nodeIntegration: false,
