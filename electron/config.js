@@ -56,4 +56,17 @@ function loadOrCreateConfig() {
   return config;
 }
 
-module.exports = { userDataDir, dbDataDir, configPath, logPath, loadOrCreateConfig };
+/**
+ * Write the config back.
+ *
+ * The ports move on their own when the ones recorded here turn out to be taken
+ * -- two installs on one machine, or a development database in a terminal --
+ * so the file has to be writable, not just readable.
+ */
+function saveConfig(config) {
+  fs.writeFileSync(configPath(), JSON.stringify(config, null, 2), { mode: 0o600 });
+}
+
+module.exports = {
+  userDataDir, dbDataDir, configPath, logPath, loadOrCreateConfig, saveConfig,
+};

@@ -86,44 +86,57 @@ export default async function SafePayoutPanel({ summary, className = "" }) {
               </p>
             </li>
 
+            {/* A lever that cannot reach says so in words. A bare dash beside
+                two large figures reads as a broken card rather than an
+                answer. */}
             <li className="rounded-xl border border-border p-4">
               <p className="stat-label">Repay faster</p>
-              <p className="mt-1 text-2xl font-semibold text-heading num">
-                {levers.needed_term ? `${levers.needed_term} months` : "—"}
-              </p>
-              <p className="mt-1.5 text-sm text-text-light">
-                {levers.needed_term ? (
-                  <>
+              {levers.needed_term ? (
+                <>
+                  <p className="mt-1 text-2xl font-semibold text-heading num">
+                    {levers.needed_term} months
+                  </p>
+                  <p className="mt-1.5 text-sm text-text-light">
                     instead of {summary.repayment_term}. That puts the installment at{" "}
-                    <span className="num">
-                      {money(levers.ceiling / levers.needed_term)}
-                    </span>{" "}
-                    a month.
-                  </>
-                ) : (
-                  <>a shorter term alone does not get there.</>
-                )}
-              </p>
+                    <span className="num">{money(levers.ceiling / levers.needed_term)}</span> a
+                    month.
+                  </p>
+                </>
+              ) : (
+                <>
+                  <p className="mt-1 text-lg font-semibold text-text-light">Not on its own</p>
+                  <p className="mt-1.5 text-sm text-text-light">
+                    Even repaying over the shortest sensible period does not close a gap this
+                    size.
+                  </p>
+                </>
+              )}
             </li>
 
             <li className="rounded-xl border border-border p-4">
               <p className="stat-label">Everyone puts in more</p>
-              <p className="mt-1 text-2xl font-semibold text-heading num">
-                {levers.needed_contribution ? money(levers.needed_contribution) : "—"}
-              </p>
-              <p className="mt-1.5 text-sm text-text-light">
-                {levers.needed_contribution ? (
-                  <>
+              {levers.needed_contribution ? (
+                <>
+                  <p className="mt-1 text-2xl font-semibold text-heading num">
+                    {money(levers.needed_contribution)}
+                  </p>
+                  <p className="mt-1.5 text-sm text-text-light">
                     a month each, instead of {money(summary.contribution_amount)} —{" "}
                     <span className="num">
                       {money(levers.needed_contribution - summary.contribution_amount)}
                     </span>{" "}
                     more per person.
-                  </>
-                ) : (
-                  <>a bigger contribution alone does not get there.</>
-                )}
-              </p>
+                  </p>
+                </>
+              ) : (
+                <>
+                  <p className="mt-1 text-lg font-semibold text-text-light">Not on its own</p>
+                  <p className="mt-1.5 text-sm text-text-light">
+                    Closing this gap by contributions alone would mean paying in more each month
+                    than the withdrawal is worth.
+                  </p>
+                </>
+              )}
             </li>
           </ul>
 

@@ -146,6 +146,31 @@ const MEMBERS = [
   check('...and Rs 50 less really does not',
     (await one('select terms_are_safe(145000, 5400, null) as v')).v === false);
 
+  // Changing the rules is done from the Settings screen as the application
+  // role, and that is the only way a missing grant on the AUDIT table shows
+  // up -- as the superuser every grant is invisible.
+  const settingsSaved = await refuses(() => q(
+    'update committee_settings set contribution_amount = 4500, safety_buffer = 60000 where id = 1'));
+  check('the committee rules can actually be saved by the app', settingsSaved === null, settingsSaved);
+  check('...and the change is written to the audit log',
+    Number((await one("select count(*) as n from settings_history where field = 'contribution_amount'")).n) === 1);
+  check('...which the app cannot forge rows in',
+    (await refuses(() => q(
+      "insert into settings_history (field, old_value, new_value) values ('x','1','2')"))) !== null);
+  await q('update committee_settings set contribution_amount = 4000, safety_buffer = 50000 where id = 1');
+
+  // A small committee with a large agreed withdrawal drives the term search
+  // all the way down. "Repay it over 1 month" is arithmetically true and
+  // useless advice, so below three months the lever reports nothing instead.
+  await q('update committee_settings set max_payout_amount = 900000 where id = 1');
+  const silly = await one('select * from payout_levers()');
+  check('an impossible ceiling does not produce a one-month repayment',
+    silly.needed_term === null || silly.needed_term >= 3, `got ${silly.needed_term}`);
+  check('...nor a contribution larger than the withdrawal itself',
+    silly.needed_contribution === null || Number(silly.needed_contribution) < 900000,
+    `got ${silly.needed_contribution}`);
+  await q('update committee_settings set max_payout_amount = 145000 where id = 1');
+
   check('the fund grows Rs 40,000 a month once past the ramp',
     near(levers.growth_after_ramp, 40000), `got ${levers.growth_after_ramp}`);
 

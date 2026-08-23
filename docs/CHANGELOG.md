@@ -7,12 +7,60 @@ and reverted, or a bug whose cause was not where it looked.
 
 | | |
 |---|---|
-| Migrations | 001–012, all applied by `electron/bootstrap-db.js` on launch |
-| Schema checks | 62, in `scripts/check-sql.js`, all passing |
+| Migrations | 001–014, all applied by `electron/bootstrap-db.js` on launch |
+| Schema checks | 67, in `scripts/check-sql.js`, all passing |
 | Screens | dashboard, month, members, member, months, month detail, projection, settings, login, setup, two print sheets |
 | Verified by running | dev server in a browser at 1440/1024/400px; full Electron chain under a virtual display on Linux |
 | Packaged | `npm run pack` builds `dist/linux-unpacked` and that binary runs: own Postgres, 12 migrations, spawned server, `/setup` served with styling |
 | Never run | the NSIS installer (`npm run dist`), anything on Windows |
+
+## 2026-08-23 — three things found by running the installed app
+
+**Every install used port 55437.** The dev database and the packaged app both
+took the same fixed port from `loadOrCreateConfig`, so having VS Code open meant
+the .exe refused to start. The port guard reported it clearly, which was the
+only good part — the guard was right and the design behind it was wrong.
+
+Fixed ports are worth keeping: a different one each launch makes every log and
+bug report incomparable. A fixed port shared by every install is not. The port
+is now chosen once from the recorded one upward, written back to config.json,
+and only moved when it is genuinely taken.
+
+That exposed a second thing. A postmaster left running by a crash also holds
+the port, and moving to a different one would have started a SECOND postmaster
+against the same data directory — the one thing that must never happen. So the
+cluster is reconciled before a port is picked: read our own `postmaster.pid`,
+and if a Postgres answers on the port it names using our own superuser
+password, it is ours and alive, so stop it. If nothing answers, the file is a
+stale lock — delete it, which is also exactly what a backup taken while running
+looks like on restore. Connecting is the only safe test; a pid can be recycled.
+
+Also fixed: a failure after `pg.start()` left the cluster running with nothing
+holding a handle to it, so a bad migration would surface one launch later as a
+port collision instead of as itself.
+
+**"Repay faster: 1 months."** On a four-member committee with a Rs 145,000
+agreed withdrawal, the term search ran all the way down and reported a
+one-month repayment at Rs 145,000 an installment. Arithmetically true, useless:
+that is not a loan, it is handing the money back. Migration 013 floors the
+search at three months and suppresses a contribution larger than the withdrawal
+itself. Both cards now say "Not on its own" in words — a bare dash between two
+large figures reads as a broken card rather than an answer.
+
+**Saving the Settings screen was broken, and had been since migration 002.**
+The audit trigger on `committee_settings` inserts into `settings_history`, and
+the application role was granted SELECT on it. Not INSERT. A trigger function
+runs as whoever fired it unless it says otherwise, so every save died on the
+audit line — naming a table the user was not editing.
+
+It survived 62 checks because they exercised settings as the superuser, which
+every grant is invisible to. Migration 014 makes the trigger SECURITY DEFINER
+rather than granting INSERT: an audit log its own subject can forge rows in is
+not worth keeping. The regression check now updates settings through the
+application role, which is the only way this class of bug shows up at all.
+
+The base font went from 17px to 15px. It was set for an older reader; the
+actual reader is in his thirties and found it oversized.
 
 ## 2026-08-22 — the packaging config was invalid, and an empty database
 

@@ -46,9 +46,12 @@
 
 @layer base {
   html {
-    /* One notch up from a website's default. This is read at arm's length on a
-       laptop by someone who is also looking at a piece of paper. */
-    font-size: 17px;
+    /* Everything else is in rem, so this one number scales the whole app.
+       Started at 17px on the assumption of an older reader; the actual reader
+       is in his thirties and found it oversized. 15px is an ordinary desktop
+       size and still a touch above a website's, which is the right place for
+       something read next to a bank slip. */
+    font-size: 15px;
   }
 
   body {

@@ -47,11 +47,16 @@ Move any of these and something breaks quietly rather than loudly.
 | `output: 'standalone'` | `next.config.mjs` | Electron has no server to spawn |
 | `.table-wrap` is `relative` | `app/_styles/globals.css` | `sr-only` escapes the scroll clip and the page scrolls sideways |
 | `fund_delta` is a generated column | migration 005 | Every total in the app is a sum of it |
+| Ports are chosen at startup, not fixed | `electron/bootstrap-db.js` | Two installs, or a dev database beside the app, and neither can start |
+
+**Check grants by running as `app_user`, not the superuser.** A missing GRANT is
+invisible to a superuser connection, which is how the Settings screen stayed
+broken through 62 passing checks (migration 014).
 
 ## How to verify a change
 
 ```bash
-npm run check:sql     # 62 checks against a throwaway Postgres cluster
+npm run check:sql     # 67 checks against a throwaway Postgres cluster
 npm run build         # the only type check a JavaScript project has
 ```
 
@@ -100,7 +105,7 @@ Import with `@/` everywhere. Never `../../..`.
 
 The app has been run end to end under a virtual display on Linux, both from
 source and from `electron-builder`'s packaged output: Postgres starts, all
-twelve migrations apply, the standalone server comes up, the window loads and
+fourteen migrations apply, the standalone server comes up, the window loads and
 renders, shutdown is clean.
 
 **Nothing Windows-specific has been run at all** — no NSIS installer, no `.cmd`
